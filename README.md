@@ -1,2 +1,3 @@
-# bugless-ios
-Open source iOS bug tracking SDK
+# Bugless
+
+An open source iOS library for collecting app feedback and bug reports.
