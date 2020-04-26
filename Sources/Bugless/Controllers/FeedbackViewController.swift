@@ -270,8 +270,12 @@ extension FeedbackViewController {
         issue.username = usernameField.text ?? ""
         issue.title = (appName ?? "Bugless feedback") + ": You've received a user feedback"
         issue.message = messageView.text
-        if screenshot != nil { issue.screenshots = [screenshot!] }
-        issue.systemInfo = systemInfo
+        if screenshotRow.toggleControl.isOn && screenshot != nil {
+            issue.screenshots = [screenshot!]
+        }
+        if logsRow.toggleControl.isOn {
+            issue.systemInfo = systemInfo
+        }
         issue.type = issueType
         return issue
     }
