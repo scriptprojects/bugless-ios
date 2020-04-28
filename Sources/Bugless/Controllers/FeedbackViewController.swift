@@ -40,7 +40,7 @@ extension FeedbackViewController {
         
         view.backgroundColor = .white
         mainViewSetup()
-        systemInfo = collectLogs()
+        systemInfo = Issue.collectSystemInfo()
         
         //Notifications
         NotificationCenter.default.addObserver(self, selector: #selector(issueSubmitionSucessful), name: .buglessIssueSubmittionSuccesful, object: nil)
@@ -210,61 +210,6 @@ extension FeedbackViewController {
         
     }
     
-    func collectLogs() -> [String: String] {
-        
-        //MAYBE: This might become its own class
-        //Collect logs along with system information
-        //var logs: [[String: String]] = []
-        var logs: [String: String] = [:]
-        let device = UIDevice.current
-        appName = Bundle.main.infoDictionary![kCFBundleNameKey as String] as? String
-        let appVersion = Bundle.main.infoDictionary![kCFBundleVersionKey as String] as! String
-        let appIdentifier = Bundle.main.infoDictionary![kCFBundleIdentifierKey as String] as! String
-        
-        logs["appName"]       =  appName ?? ""
-        logs["appVersion"]    =  appVersion
-        logs["appIdentifier"] =  appIdentifier
-        logs["deviceName"]    =  device.name
-        logs["systemName"]    =  device.systemName
-        logs["systemVersion"] =  device.systemVersion
-        logs["model"]         =  device.localizedModel
-        logs["batteryLevel"]  =  "\(device.batteryLevel)"
-        logs["batteryState"]  =  batteryStateToString(device.batteryState)
-        logs["interface"]     =  interfaceToString(device.userInterfaceIdiom)
-        
-        return logs
-        
-    }
-    
-    //TODO: Remove
-    func composeEmailBody() -> String {
-        
-        var result = messageView.text + "\n\nSystem Information:\n\n"
-        
-        for line in systemInfo {
-            result += line.key + ": " + line.value + "\n"
-        }
-        
-        return result
-        
-    }
-    
-    //TODO: Remove
-    func sendThroughGithubIssue() {
-        
-        let client = GithubIntegration()
-        let issue = Issue()
-        issue.username = usernameField.text ?? ""
-        issue.title = (appName ?? "Bugless feedback") + ": You've received a user feedback"
-        issue.message = messageView.text
-        if screenshot != nil { issue.screenshots = [screenshot!] }
-        issue.systemInfo = systemInfo
-        issue.type = issueType
-        client.send(issue: issue)
-        
-    }
-    
-    //TODO: Don't include options that have been turned off by the user
     func getIssue() -> Issue {
         let issue = Issue()
         issue.username = usernameField.text ?? ""
