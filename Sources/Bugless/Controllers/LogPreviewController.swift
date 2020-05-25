@@ -2,67 +2,30 @@
 //  LogPreviewController.swift
 //  
 //
-//  Created By ScriptProjects, LLC on 3/30/20.
+//  Created by Erick Del Orbe on 5/25/20.
 //
 
 import UIKit
 
-class LogPreviewController: UITableViewController {
+///Lets the user preview the logs that will be sent with their report
+class LogPreviewController: UIViewController {
     
-    var logs: [String: String] = [:]
-    var keys: [String] = []
-    
-    internal override init(style: UITableView.Style) {
-        super.init(style: style)
-    }
-    
-    required init?(coder: NSCoder) {
-        super.init(coder: coder)
-    }
+    var logView: UITextView!
+    var loggers: [String: FileLogger?] = [:]
     
     override func viewDidLoad() {
         
-        super.viewDidLoad()
-        //tableView.register(UITableViewCell, forCellReuseIdentifier: "logItemCell")
-        keys = Array(logs.keys)
-        navigationItem.title = "System Info/Logs"
-    }
-}
-
-//MARK: - Datasource methods
-extension LogPreviewController {
-    
-    override func numberOfSections(in tableView: UITableView) -> Int {
-        return 1
-    }
-    
-    override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return logs.keys.count
-    }
-    
-    override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        navigationItem.title = title
         
-        let key = keys[indexPath.row]
+        logView = UITextView(frame: .zero)
+        logView.isEditable = false
+        CH.pin(logView, to: view, onEdge: .all)
         
-        var cell = tableView.dequeueReusableCell(withIdentifier: "logItemCell")
-        if cell == nil {
-            cell = UITableViewCell(style: .subtitle, reuseIdentifier: "logItemCell")
-        }
-        cell?.textLabel?.text = camelCaseToWords(keys[indexPath.row])
-        cell?.detailTextLabel?.text = logs[key]
-        
-        return cell!
-    }
-    
-    func camelCaseToWords(_ string: String) -> String {
-        return string.unicodeScalars.reduce("") {
-            if CharacterSet.uppercaseLetters.contains($1) {
-                if $0.count > 0 {
-                    return ($0.capitalized + " " + String($1))
-                }
+        for (key, logger) in loggers {
+            if let logger = logger {
+                logView.text += key + " Logs\n" + logger.getLogContents() + "\n"
             }
-            return $0.capitalized + String($1)
         }
+        
     }
-    
 }

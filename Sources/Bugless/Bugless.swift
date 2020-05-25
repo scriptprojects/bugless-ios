@@ -12,12 +12,18 @@ public class Bugless {
     //MARK: - Private API
     init() {}
     
+    //MARK: - Properties
     static var configuration: Configuration = Configuration()
     
     static var integrations: [IssueIntegration] = []
     
     static var prefs = UserDefaults(suiteName: "ml.bugless.preferences")  //Persistent storage
     
+    static var fileLog: FileLogger?
+    
+    static var networkLog = NetworkLogger()
+    
+    //MARK: - Methods
     static func showOptions(_ context: UIViewController, screenshot: UIImage?) {
         
         //Localized strings
@@ -47,7 +53,7 @@ public class Bugless {
     static func showFeedbackForm(_ context: UIViewController, screenshot: UIImage?, issueType: IssueType = .none) {
         
         if Bugless.configuration.skipFeedbackForm {
-            let issue = Issue.issueWith(screenshot: screenshot)
+            let issue = Issue.getIssue(screenshot)
             integrations = []
             for sendMethod in Bugless.configuration.sendMethods {
                 let integration = Bugless.integration(for: sendMethod)
@@ -136,7 +142,21 @@ public class Bugless {
     }
     
     //MARK: - Public API
-    public static func initialize(configuration config: Configuration? = nil) {
+    //TODO: Separate initialization, from configuration
+    //If keys/secrets are stored in the code, the configuration will be called after the app is initialized
+    //We want to initialize local things first and then later configure remote things, like Integration credentials, etc
+    public static func initialize(with configuration: Configuration? = nil) {
+        
+        //Register network logger
+        print("Registering network logger")
+        URLProtocol.registerClass(NetworkTap.self)
+        NetworkTap.delegate = networkLog
+        
+        //Apply configuration if passed
+        if configuration != nil { apply(configuration: configuration) }
+    }
+    
+    public static func apply(configuration config: Configuration? = nil) {
         
         //TODO: Check credentials if needed (email doesn't require credentails)
         if let config = config { configuration = config }
@@ -153,6 +173,7 @@ public class Bugless {
         }
         NotificationCenter.default.addObserver(Bugless.self, selector: #selector(cleanUp), name: .buglessIssueSubmittionSuccesful, object: nil)
         NotificationCenter.default.addObserver(Bugless.self, selector: #selector(cleanUp), name: .buglessIssueSubmitionFailed, object: nil)
+        
     }
     
     public static func show() {
@@ -165,5 +186,11 @@ public class Bugless {
         } else {
             print("Bugless Error: Unable to find top most view controller")
         }
+    }
+    
+    public static func BLLog(_ logLine: String) {
+        
+        if fileLog == nil { fileLog = FileLogger() }
+        fileLog?.writeToLog(logLine)
     }
 }

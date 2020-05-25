@@ -15,7 +15,8 @@ class Issue {
     var screenshots: [UIImage] = []
     var systemInfo: [String: String] = [:]
     var type: IssueType = .none
-    //TODO: var networkLogs: [NetworkLog]
+    var mainLog: String = ""
+    var networkLog: String = ""
     
     init() {
         
@@ -28,6 +29,8 @@ class Issue {
         try container.encode(message, forKey: .message)
         try container.encode(systemInfo, forKey: .systemInfo)
         try container.encode(type, forKey: .type)
+        try container.encode(mainLog, forKey: .mainLog)
+        try container.encode(networkLog, forKey: .networkLog)
         
         var imageData: [Data] = []
         for screenshot in screenshots {
@@ -40,28 +43,30 @@ class Issue {
     
     static func collectSystemInfo() -> [String: String] {
         
-        var logs: [String: String] = [:]
+        var systemInfo: [String: String] = [:]
         let device = UIDevice.current
         let appName = Bundle.main.infoDictionary![kCFBundleNameKey as String] as? String
         let appVersion = Bundle.main.infoDictionary![kCFBundleVersionKey as String] as! String
         let appIdentifier = Bundle.main.infoDictionary![kCFBundleIdentifierKey as String] as! String
         
-        logs["appName"]       =  appName ?? ""
-        logs["appVersion"]    =  appVersion
-        logs["appIdentifier"] =  appIdentifier
-        logs["deviceName"]    =  device.name
-        logs["systemName"]    =  device.systemName
-        logs["systemVersion"] =  device.systemVersion
-        logs["model"]         =  device.localizedModel
-        logs["batteryLevel"]  =  "\(device.batteryLevel)"
+        systemInfo["appName"]       =  appName ?? ""
+        systemInfo["appVersion"]    =  appVersion
+        systemInfo["appIdentifier"] =  appIdentifier
+        systemInfo["deviceName"]    =  device.name
+        systemInfo["systemName"]    =  device.systemName
+        systemInfo["systemVersion"] =  device.systemVersion
+        systemInfo["model"]         =  device.localizedModel
+        systemInfo["batteryLevel"]  =  "\(device.batteryLevel)"
         
-        return logs
+        return systemInfo
         
     }
     
-    static func issueWith(screenshot: UIImage?) -> Issue {
+    static func getIssue(_ screenshot: UIImage? = nil) -> Issue {
         let issue = Issue()
         issue.systemInfo = collectSystemInfo()
+        issue.mainLog = Bugless.fileLog?.getLogContents() ?? ""
+        issue.networkLog = Bugless.networkLog.getLogContents()
         if let screenshot = screenshot {
             issue.screenshots = [screenshot]
         }
@@ -78,6 +83,8 @@ extension Issue: Encodable {
         case screenshots
         case systemInfo
         case type
+        case mainLog
+        case networkLog
     }
     
 }
@@ -130,6 +137,8 @@ class SerializableIssue: Issue {
         systemInfo = issue.systemInfo
         type = issue.type
         screenshots = []
+        mainLog = issue.mainLog
+        networkLog = issue.networkLog
     }
     
     func toJson() -> String {
@@ -148,6 +157,8 @@ class SerializableIssue: Issue {
         try container.encode(systemInfo, forKey: .systemInfo)
         try container.encode(type, forKey: .type)
         try container.encode(imageLinks, forKey: .screenshots)
+        try container.encode(mainLog, forKey: .mainLog)
+        try container.encode(networkLog, forKey: .networkLog)
     }
     
 }
