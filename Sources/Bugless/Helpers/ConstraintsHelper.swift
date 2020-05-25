@@ -38,6 +38,7 @@ class ConstraintsHelper {
     static func pinHorizontal(_ view: UIView, parentView: UIView, withInsets insets: EdgeInsets = .zero, useSafeArea: Bool = false) {
         
         if !parentView.subviews.contains(view) { parentView.addSubview(view) }
+        view.translatesAutoresizingMaskIntoConstraints = false
         pinLeading(view, parentView: parentView, withInset: insets.leading, useSafeArea: useSafeArea)
         pinTrailing(view, parentView: parentView, withInset: insets.trailing, useSafeArea: useSafeArea)
         
@@ -46,6 +47,7 @@ class ConstraintsHelper {
     static func pinVertical(_ view: UIView, parentView: UIView, withInsets insets: EdgeInsets = .zero, useSafeArea: Bool = false) {
         
         if !parentView.subviews.contains(view) { parentView.addSubview(view) }
+        view.translatesAutoresizingMaskIntoConstraints = false
         pinTop(view, parentView: parentView, withInset: insets.top, useSafeArea: useSafeArea)
         pinBottom(view, parentView: parentView, withInset: insets.bottom, useSafeArea: useSafeArea)
         
