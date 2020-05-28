@@ -10,7 +10,7 @@ import Foundation
 public class Configuration {
     
     public init(
-        trigger newTrigger: TriggerType = .none,
+        trigger newTrigger: TriggerType = .manual,
         sendMethods methods: [Integration] = [.nativeEmailClient],
         webhookUrl hookUrl: String = "",
         imageServiceCredentials imageCredentials: [String: String] = [:],
@@ -27,7 +27,7 @@ public class Configuration {
     public enum TriggerType {
         case shake
         case screenshot
-        case none
+        case manual
     }
     
     public enum Integration {
@@ -41,7 +41,7 @@ public class Configuration {
     
     public var skipFeedbackForm: Bool = false
     
-    public var trigger: TriggerType = .none
+    public var trigger: TriggerType = .manual
     
     public var sendMethods: [Integration] = [.nativeEmailClient]
     
