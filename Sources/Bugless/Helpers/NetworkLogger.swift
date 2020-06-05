@@ -9,8 +9,6 @@ import Foundation
 
 public class NetworkLogger: FileLogger {
     
-    //MARK: - Properties
-    
     //MARK: - Initializers
     override init() {
         super.init()
@@ -21,7 +19,6 @@ public class NetworkLogger: FileLogger {
     override func getPrefix() -> String {
         return ""
     }
-    
 }
 
 //MARK: - NetworkTapDelegate
